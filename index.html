@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador Google Play Store - Completo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .formats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .format-card {
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        .format-card:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+            transform: translateY(-2px);
+        }
+
+        .format-card.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .format-card.active .format-name,
+        .format-card.active .format-size,
+        .format-card.active .format-desc {
+            color: white;
+        }
+
+        .format-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .format-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .format-size {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .format-card.active .format-size {
+            color: #ffd700;
+        }
+
+        .format-desc {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .format-badge {
+            display: inline-block;
+            background: #34a853;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .format-card.active .format-badge {
+            background: #ffd700;
+            color: #333;
+        }
+
+        .upload-section {
+            margin: 30px 0;
+        }
+
+        .current-format-info {
+            background: linear-gradient(135deg, #f0f2ff 0%, #fef3e6 100%);
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .current-format-info h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .current-format-info p {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .specs {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .spec-item {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+            transform: scale(1.01);
+        }
+
+        .upload-area.dragover {
+            border-color: #34a853;
+            background: #e8f5e9;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            color: #333;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 14px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .preview-container {
+            display: none;
+            margin-top: 40px;
+        }
+
+        .preview-container.active {
+            display: block;
+        }
+
+        .preview-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .preview-header h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .image-box {
+            background: #f9f9f9;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-box h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .image-wrapper {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            max-height: 400px;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .image-info {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .success-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #34a853;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #34a853;
+            color: white;
+            flex: 1;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .btn-secondary:hover {
+            background: #2d8e47;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 168, 83, 0.4);
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #666;
+            padding: 16px 24px;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .tips-section {
+            background: #fff9e6;
+            border-left: 5px solid #fbbc04;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 40px;
+        }
+
+        .tips-section h3 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tips-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .tip-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .tip-item strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .formats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Generador de Imágenes para Google Play Store</h1>
+            <p class="subtitle">Crea todas las imágenes necesarias con un solo clic • Sin bordes blancos • Formato perfecto</p>
+        </div>
+
+        <div class="formats-grid" id="formatsGrid">
+            <div class="format-card active" data-format="icon">
+                <div class="format-icon">🎯</div>
+                <div class="format-name">Ícono de App</div>
+                <div class="format-size">1024 × 1024 px</div>
+                <div class="format-desc">Imagen cuadrada obligatoria. Debe ser clara y reconocible en todos los tamaños.</div>
+                <span class="format-badge">OBLIGATORIO</span>
+            </div>
+
+            <div class="format-card" data-format="feature">
+                <div class="format-icon">🖼️</div>
+                <div class="format-name">Gráfico Destacado</div>
+                <div class="format-size">1024 × 500 px</div>
+                <div class="format-desc">Banner horizontal que aparece en la parte superior de tu ficha en Play Store.</div>
+                <span class="format-badge">OBLIGATORIO</span>
+            </div>
+
+            <div class="format-card" data-format="phone">
+                <div class="format-icon">📱</div>
+                <div class="format-name">Captura Teléfono</div>
+                <div class="format-size">1080 × 1920 px</div>
+                <div class="format-desc">Capturas de pantalla para dispositivos móviles. Relación 9:16 (vertical).</div>
+                <span class="format-badge">MIN. 2 CAPTURAS</span>
+            </div>
+
+            <div class="format-card" data-format="tablet7">
+                <div class="format-icon">📲</div>
+                <div class="format-name">Tablet 7 pulgadas</div>
+                <div class="format-size">1200 × 1920 px</div>
+                <div class="format-desc">Capturas para tablets de 7". Relación 16:9 o 9:16. Lados entre 320-3840 px.</div>
+                <span class="format-badge">OPCIONAL</span>
+            </div>
+
+            <div class="format-card" data-format="tablet10">
+                <div class="format-icon">💻</div>
+                <div class="format-name">Tablet 10 pulgadas</div>
+                <div class="format-size">1920 × 1200 px</div>
+                <div class="format-desc">Capturas para tablets de 10". Relación 16:9 o 9:16. Lados entre 1080-7680 px.</div>
+                <span class="format-badge">OPCIONAL</span>
+            </div>
+
+            <div class="format-card" data-format="tablet10-vertical">
+                <div class="format-icon">📱</div>
+                <div class="format-name">Tablet 10" Vertical</div>
+                <div class="format-size">1200 × 1920 px</div>
+                <div class="format-desc">Versión vertical para tablets de 10". Relación 9:16. Lados entre 1080-7680 px.</div>
+                <span class="format-badge">OPCIONAL</span>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <div class="current-format-info" id="formatInfo">
+                <h3 id="formatTitle">🎯 Ícono de App - 1024×1024 px</h3>
+                <p id="formatDescription">Imagen cuadrada obligatoria para tu aplicación. Debe ser simple, memorable y funcionar bien en tamaños pequeños. Se mostrará en Google Play Store y en los dispositivos de los usuarios.</p>
+                <div class="specs">
+                    <div class="spec-item">📐 Aspecto: <span id="aspectRatio">1:1</span></div>
+                    <div class="spec-item">📏 Tamaño: <span id="dimensions">1024×1024</span></div>
+                    <div class="spec-item">📦 Formato: PNG/JPEG</div>
+                    <div class="spec-item">💾 Máx: 8 MB</div>
+                </div>
+            </div>
+
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">☁️</div>
+                <div class="upload-text">Arrastra tu imagen aquí o haz clic para seleccionar</div>
+                <div class="upload-hint">Formatos soportados: JPG, PNG, GIF, WebP • Máximo 8 MB</div>
+                <input type="file" id="fileInput" accept="image/*">
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Procesando tu imagen...</div>
+        </div>
+
+        <div class="preview-container" id="previewContainer">
+            <div class="preview-header">
+                <h2>✨ Resultado Final</h2>
+            </div>
+
+            <div class="comparison">
+                <div class="image-box">
+                    <h3>📤 Imagen Original</h3>
+                    <div class="image-wrapper">
+                        <img id="originalImage" alt="Original">
+                    </div>
+                    <div class="image-info">
+                        <div class="info-item">
+                            <div class="info-label">Ancho</div>
+                            <div class="info-value" id="origWidth">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Alto</div>
+                            <div class="info-value" id="origHeight">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Aspecto</div>
+                            <div class="info-value" id="origAspect">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="image-box">
+                    <h3>✅ Imagen Procesada</h3>
+                    <div class="image-wrapper">
+                        <img id="processedImage" alt="Procesada">
+                    </div>
+                    <div class="image-info">
+                        <div class="info-item">
+                            <div class="info-label">Ancho</div>
+                            <div class="info-value" id="procWidth">1024</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Alto</div>
+                            <div class="info-value" id="procHeight">1024</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Aspecto</div>
+                            <div class="info-value" id="procAspect">1:1</div>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <span class="success-badge">
+                            <span>✓</span>
+                            <span>Listo para Google Play Store</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="downloadPNG">
+                    <span>⬇️</span>
+                    <span>Descargar PNG</span>
+                </button>
+                <button class="btn btn-secondary" id="downloadJPG">
+                    <span>⬇️</span>
+                    <span>Descargar JPG</span>
+                </button>
+                <button class="btn btn-reset" id="resetBtn">
+                    <span>🔄</span>
+                    <span>Nueva Imagen</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="tips-section">
+            <h3>💡 Guía Rápida de Google Play Store</h3>
+            <div class="tips-list">
+                <div class="tip-item">
+                    <strong>Ícono de App</strong>
+                    Obligatorio. Debe ser 1024×1024 px. Evita texto y mantén diseño simple. Se verá en diferentes tamaños.
+                </div>
+                <div class="tip-item">
+                    <strong>Gráfico Destacado</strong>
+                    Obligatorio. 1024×500 px. Banner promocional que aparece arriba de tu ficha. Puede incluir texto.
+                </div>
+                <div class="tip-item">
+                    <strong>Capturas Teléfono</strong>
+                    Mínimo 2, máximo 8. Vertical (9:16). Muestra las mejores funciones de tu app en acción.
+                </div>
+                <div class="tip-item">
+                    <strong>Capturas Tablet 7"</strong>
+                    Opcional. 1200×1920 o 1920×1200 px. Optimiza la experiencia visual para tablets pequeñas.
+                </div>
+                <div class="tip-item">
+                    <strong>Capturas Tablet 10"</strong>
+                    Opcional. 1920×1200 o 1200×1920 px. Muestra tu app aprovechando pantallas grandes.
+                </div>
+                <div class="tip-item">
+                    <strong>Formato y Calidad</strong>
+                    PNG (recomendado) o JPG. Máximo 8 MB por imagen. Alta resolución y sin bordes blancos.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const formats = {
+            icon: { width: 1024, height: 1024, name: '🎯 Ícono de App', aspect: '1:1', desc: 'Imagen cuadrada obligatoria para tu aplicación. Debe ser simple, memorable y funcionar bien en tamaños pequeños.' },
+            feature: { width: 1024, height: 500, name: '🖼️ Gráfico Destacado', aspect: '1024:500', desc: 'Banner horizontal que aparece en la parte superior de tu ficha en Play Store. Puede incluir texto y elementos promocionales.' },
+            phone: { width: 1080, height: 1920, name: '📱 Captura Teléfono', aspect: '9:16', desc: 'Capturas de pantalla para dispositivos móviles en orientación vertical. Muestra las funciones principales de tu app.' },
+            tablet7: { width: 1200, height: 1920, name: '📲 Tablet 7 pulgadas', aspect: '10:16', desc: 'Capturas para tablets de 7 pulgadas. Puede ser vertical (9:16) u horizontal (16:9). Lados entre 320-3840 px.' },
+            tablet10: { width: 1920, height: 1200, name: '💻 Tablet 10 pulgadas', aspect: '16:10', desc: 'Capturas para tablets de 10 pulgadas en horizontal. Aprovecha el espacio para mostrar más contenido. Lados entre 1080-7680 px.' },
+            'tablet10-vertical': { width: 1200, height: 1920, name: '📱 Tablet 10" Vertical', aspect: '10:16', desc: 'Capturas para tablets de 10 pulgadas en vertical. Ideal para apps con scroll vertical. Lados entre 1080-7680 px.' }
+        };
+
+        let currentFormat = 'icon';
+        let currentImage = null;
+        let processedDataPNG = null;
+        let processedDataJPG = null;
+
+        const elements = {
+            formatsGrid: document.getElementById('formatsGrid'),
+            uploadArea: document.getElementById('uploadArea'),
+            fileInput: document.getElementById('fileInput'),
+            loading: document.getElementById('loading'),
+            previewContainer: document.getElementById('previewContainer'),
+            formatTitle: document.getElementById('formatTitle'),
+            formatDescription: document.getElementById('formatDescription'),
+            aspectRatio: document.getElementById('aspectRatio'),
+            dimensions: document.getElementById('dimensions'),
+            originalImage: document.getElementById('originalImage'),
+            processedImage: document.getElementById('processedImage'),
+            origWidth: document.getElementById('origWidth'),
+            origHeight: document.getElementById('origHeight'),
+            origAspect: document.getElementById('origAspect'),
+            procWidth: document.getElementById('procWidth'),
+            procHeight: document.getElementById('procHeight'),
+            procAspect: document.getElementById('procAspect'),
+            downloadPNG: document.getElementById('downloadPNG'),
+            downloadJPG: document.getElementById('downloadJPG'),
+            resetBtn: document.getElementById('resetBtn')
+        };
+
+        // Format selection
+        elements.formatsGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('.format-card');
+            if (!card) return;
+
+            document.querySelectorAll('.format-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+
+            currentFormat = card.dataset.format;
+            updateFormatInfo();
+
+            if (currentImage) {
+                processImage(currentImage);
+            }
+        });
+
+        function updateFormatInfo() {
+            const fmt = formats[currentFormat];
+            elements.formatTitle.textContent = `${fmt.name} - ${fmt.width}×${fmt.height} px`;
+            elements.formatDescription.textContent = fmt.desc;
+            elements.aspectRatio.textContent = fmt.aspect;
+            elements.dimensions.textContent = `${fmt.width}×${fmt.height}`;
+            elements.procWidth.textContent = fmt.width;
+            elements.procHeight.textContent = fmt.height;
+            elements.procAspect.textContent = fmt.aspect;
+        }
+
+        // Upload
+        elements.uploadArea.addEventListener('click', () => elements.fileInput.click());
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            elements.uploadArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            elements.uploadArea.addEventListener(eventName, () => {
+                elements.uploadArea.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            elements.uploadArea.addEventListener(eventName, () => {
+                elements.uploadArea.classList.remove('dragover');
+            });
+        });
+
+        elements.uploadArea.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) handleFile(files[0]);
+        });
+
+        elements.fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('❌ Por favor selecciona un archivo de imagen válido');
+                return;
+            }
+
+            if (file.size > 8 * 1024 * 1024) {
+                alert('❌ La imagen no debe superar 8 MB');
+                return;
+            }
+
+            elements.loading.classList.add('active');
+            elements.previewContainer.classList.remove('active');
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    currentImage = img;
+                    elements.originalImage.src = e.target.result;
+                    elements.origWidth.textContent = `${img.width} px`;
+                    elements.origHeight.textContent = `${img.height} px`;
+                    
+                    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+                    const divisor = gcd(img.width, img.height);
+                    elements.origAspect.textContent = `${img.width/divisor}:${img.height/divisor}`;
+
+                    processImage(img);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function processImage(img) {
+            const fmt = formats[currentFormat];
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = fmt.width;
+            canvas.height = fmt.height;
+
+            // Scale to cover (fill entire space, may crop)
+            const scale = Math.max(fmt.width / img.width, fmt.height / img.height);
+            const scaledWidth = img.width * scale;
+            const scaledHeight = img.height * scale;
+
+            // Center the image
+            const x = (fmt.width - scaledWidth) / 2;
+            const y = (fmt.height - scaledHeight) / 2;
+
+            // Draw
+            ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+
+            // Generate outputs
+            processedDataPNG = canvas.toDataURL('image/png');
+            processedDataJPG = canvas.toDataURL('image/jpeg', 0.95);
+            elements.processedImage.src = processedDataPNG;
+
+            elements.loading.classList.remove('active');
+            elements.previewContainer.classList.add('active');
+        }
+
+        // Download
+        elements.downloadPNG.addEventListener('click', () => {
+            if (!processedDataPNG) return;
+            const fmt = formats[currentFormat];
+            const link = document.createElement('a');
+            link.download = `playstore_${currentFormat}_${fmt.width}x${fmt.height}_${Date.now()}.png`;
+            link.href = processedDataPNG;
+            link.click();
+        });
+
+        elements.downloadJPG.addEventListener('click', () => {
+            if (!processedDataJPG) return;
+            const fmt = formats[currentFormat];
+            const link = document.createElement('a');
+            link.download = `playstore_${currentFormat}_${fmt.width}x${fmt.height}_${Date.now()}.jpg`;
+            link.href = processedDataJPG;
+            link.click();
+        });
+
+        // Reset
+        elements.resetBtn.addEventListener('click', () => {
+            elements.fileInput.value = '';
+            currentImage = null;
+            processedDataPNG = null;
+            process
